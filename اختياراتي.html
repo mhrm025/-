@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Quiz App</title>
+    <style>
+        /* styles.css content */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .quiz-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .header-item {
+            font-size: 18px;
+        }
+
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .start-btn, .next-btn, .add-question-btn {
+            padding: 10px 20px;
+            margin: 10px 0;
+        }
+
+        #result-container {
+            margin-top: 20px;
+        }
+
+        .correct {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .wrong {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        #add-question-container {
+            margin-top: 20px;
+        }
+
+        #add-question-form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        label {
+            margin-right: 10px;
+            display: inline-block;
+            width: 120px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 130px);
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        #add-more-btn, #submit-btn {
+            align-self: center;
+            margin-top: 10px;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #ccc;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .header-item {
+                font-size: 16px;
+            }
+
+            .question {
+                font-size: 18px;
+            }
+
+            .btn {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            label {
+                width: 100px;
+            }
+
+            input[type="text"], input[type="number"] {
+                width: calc(100% - 110px);
+            }
+        }
+
+        /* Add spinner for loading state */
+        .spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <div id="question-number" class="header-item">Question: 1</div>
+            <div id="score" class="header-item">Score: 0</div>
+        </div>
+        
+        <div id="question-container" class="hide">
+            <div id="question" class="question">Question</div>
+            <div id="answer-buttons" class="btn-container">
+                <!-- Answer Buttons Will be Generated Here Dynamically -->
+            </div>
+        </div>
+
+        <div id="result-container" class="hide">
+            <div id="result"></div>
+        </div>
+
+        <div class="controls">
+            <button id="start-btn" class="start-btn btn">Start</button>
+            <button id="next-btn" class="next-btn btn hide">Next</button>
+        </div>
+
+        <div id="add-question-container" class="hide">
+            <h2>Add New Questions</h2>
+            <form id="add-question-form">
+                <div id="questions-wrapper">
+                    <div class="question-item">
+                        <div class="form-group">
+                            <label for="new-question">Question:</label>
+                            <input type="text" class="new-question" name="new-question" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-answer1">Answer 1:</label>
+                            <input type="text" class="new-answer1" name="new-answer1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-answer2">Answer 2:</label>
+                            <input type="text" class="new-answer2" name="new-answer2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-answer3">Answer 3:</label>
+                            <input type="text" class="new-answer3" name="new-answer3" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-answer4">Answer 4:</label>
+                            <input type="text" class="new-answer4" name="new-answer4" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="correct-answer">Correct Answer (1-4):</label>
+                            <input type="number" class="correct-answer" name="correct-answer" min="1" max="4" required>
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                <button type="button" id="add-more-btn" class="btn">Add Another Question</button>
+                <button type="submit" class="btn">Submit Questions</button>
+            </form>
+        </div>
+
+        <button id="add-question-btn" class="add-question-btn btn">Add New Questions</button>
+    </div>
+
+    <!-- Add a spinner for loading state -->
+    <div class="spinner" id="loading-spinner"></div>
+
+    <script>
+        // script.js content
+        const startButton = document.getElementById('start-btn');
+        const nextButton = document.getElementById('next-btn');
+        const questionContainerElement = document.getElementById('question-container');
+        const questionElement = document.getElementById('question');
+        const answerButtonsElement = document.getElementById('answer-buttons');
+        const resultContainer = document.getElementById('result-container');
+        const resultElement = document.getElementById('result');
+        const questionNumberElement = document.getElementById('question-number');
+        const scoreElement = document.getElementById('score');
+        const addQuestionContainer = document.getElementById('add-question-container');
+        const addQuestionButton = document.getElementById('add-question-btn');
+        const addQuestionForm = document.getElementById('add-question-form');
+        const spinner = document.getElementById('loading-spinner');
+
+        let shuffledQuestions, currentQuestionIndex, score;
+        let questions = JSON.parse(localStorage.getItem('questions')) || [
+            {
+                question: 'What is the capital of France?',
+                answers: [
+                    { text: 'Paris', correct: true },
+                    { text: 'London', correct: false },
+                    { text: 'Rome', correct: false },
+                    { text: 'Berlin', correct: false }
+                ]
+            },
+            {
+                question: 'Which planet is known as the Red Planet?',
+                answers: [
+                    { text: 'Earth', correct: false },
+                    { text: 'Mars', correct: true },
+                    { text: 'Jupiter', correct: false },
+                    { text: 'Saturn', correct: false }
+                ]
+            },
+            {
+                question: 'Who wrote "To Kill a Mockingbird"?',
+                answers: [
+                    { text: 'Harper Lee', correct: true },
+                    { text: 'Jane Austen', correct: false },
+                    { text: 'Mark Twain', correct: false },
+                    { text: 'Charles Dickens', correct: false }
+                ]
+            },
+            {
+                question: 'What is the largest ocean on Earth?',
+                answers: [
+                    { text: 'Atlantic', correct: false },
+                    { text: 'Indian', correct: false },
+                    { text: 'Arctic', correct: false },
+                    { text: 'Pacific', correct: true }
+                ]
+            }
+        ];
+
+        startButton.addEventListener('click', startGame);
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            setNextQuestion();
+        });
+        addQuestionButton.addEventListener('click', () => {
+            addQuestionContainer.classList.toggle('hide');
+        });
+        addQuestionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            addNewQuestions();
+            addQuestionForm.reset();
+            alert('Questions added successfully!');
+            addQuestionContainer.classList.add('hide');
+        });
+
+        function startGame() {
+            startButton.classList.add('hide');
+            addQuestionButton.classList.add('hide');
+            shuffledQuestions = questions.sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreElement.innerText = `Score: ${score}`;
+            questionContainerElement.classList.remove('hide');
+            setNextQuestion();
+        }
+
+        function setNextQuestion() {
+            resetState();
+            showQuestion(shuffledQuestions[currentQuestionIndex]);
+        }
+
+        function showQuestion(question) {
+            questionElement.innerText = question.question;
+            const shuffledAnswers = question.answers.sort(() => Math.random() - 0.5);
+            shuffledAnswers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('btn');
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener('click', selectAnswer);
+                answerButtonsElement.appendChild(button);
+            });
+            updateTracking();
+        }
+
+        function resetState() {
+            clearStatusClass(document.body);
+            nextButton.classList.add('hide');
+            while (answerButtonsElement.firstChild) {
+                answerButtonsElement.removeChild(answerButtonsElement.firstChild);
+            }
+            resultContainer.classList.add('hide');
+            resultElement.innerText = '';
+        }
+
+        function selectAnswer(e) {
+            const selectedButton = e.target;
+            const correct = selectedButton.dataset.correct === "true";
+            setStatusClass(document.body, correct);
+            Array.from(answerButtonsElement.children).forEach(button => {
+                setStatusClass(button, button.dataset.correct);
+            });
+            if (correct) {
+                score++;
+            }
+            scoreElement.innerText = `Score: ${score}`;
+            if (shuffledQuestions.length > currentQuestionIndex + 1) {
+                nextButton.classList.remove('hide');
+            } else {
+                startButton.innerText = 'Restart';
+                startButton.classList.remove('hide');
+                addQuestionButton.classList.remove('hide');
+            }
+            showResult(correct);
+        }
+
+        function setStatusClass(element, correct) {
+            clearStatusClass(element);
+            if (correct) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('wrong');
+            }
+        }
+
+        function clearStatusClass(element) {
+            element.classList.remove('correct');
+            element.classList.remove('wrong');
+        }
+
+        function showResult(correct) {
+            resultContainer.classList.remove('hide');
+            if (correct) {
+                resultElement.innerText = 'Correct!';
+            } else {
+                const correctAnswer = shuffledQuestions[currentQuestionIndex].answers.find(answer => answer.correct).text;
+                resultElement.innerText = `Wrong! The correct answer is: ${correctAnswer}`;
+            }
+        }
+
+        function updateTracking() {
+            questionNumberElement.innerText = `Question: ${currentQuestionIndex + 1}`;
+        }
+
+        function addNewQuestions() {
+            const newQuestions = document.querySelectorAll('.question-item');
+            newQuestions.forEach(questionItem => {
+                const newQuestionText = questionItem.querySelector('.new-question').value;
+                const newAnswer1 = questionItem.querySelector('.new-answer1').value;
+                const newAnswer2 = questionItem.querySelector('.new-answer2').value;
+                const newAnswer3 = questionItem.querySelector('.new-answer3').value;
+                const newAnswer4 = questionItem.querySelector('.new-answer4').value;
+                const correctAnswerIndex = parseInt(questionItem.querySelector('.correct-answer').value);
+
+                const newQuestion = {
+                    question: newQuestionText,
+                    answers: [
+                        { text: newAnswer1, correct: correctAnswerIndex === 1 },
+                        { text: newAnswer2, correct: correctAnswerIndex === 2 },
+                        { text: newAnswer3, correct: correctAnswerIndex === 3 },
+                        { text: newAnswer4, correct: correctAnswerIndex === 4 }
+                    ]
+                };
+
+                questions.push(newQuestion);
+            });
+
+            localStorage.setItem('questions', JSON.stringify(questions));
+        }
+
+        document.getElementById('add-more-btn').addEventListener('click', () => {
+            const questionsWrapper = document.getElementById('questions-wrapper');
+            const questionItem = document.createElement('div');
+            questionItem.classList.add('question-item');
+            questionItem.innerHTML = `
+                <div class="form-group">
+                    <label for="new-question">Question:</label>
+                    <input type="text" class="new-question" name="new-question" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-answer1">Answer 1:</label>
+                    <input type="text" class="new-answer1" name="new-answer1" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-answer2">Answer 2:</label>
+                    <input type="text" class="new-answer2" name="new-answer2" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-answer3">Answer 3:</label>
+                    <input type="text" class="new-answer3" name="new-answer3" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-answer4">Answer 4:</label>
+                    <input type="text" class="new-answer4" name="new-answer4" required>
+                </div>
+                <div class="form-group">
+                    <label for="correct-answer">Correct Answer (1-4):</label>
+                    <input type="number" class="correct-answer" name="correct-answer" min="1" max="4" required>
+                </div>
+                <hr>
+            `;
+            questionsWrapper.appendChild(questionItem);
+        });
+    </script>
+</body>
+</html>
